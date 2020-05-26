@@ -1,6 +1,17 @@
 import numpy as np
 from typing import Optional, Callable
 from agents.common import PlayerAction, BoardPiece, SavedState, GenMove
+from agents.agent_random import generate_move_ran
+from agents.agent_score import generate_move_sc
+from agents.agent_minimax_aa import generate_move_min
+from agents.agent_minimax_abeta import generate_move_min_ab
+import pstats
+import os
+os.environ['NUMBA_DISABLE_JIT'] = '1'
+import cProfile
+
+
+
 
 def user_move(board: np.ndarray, _player: BoardPiece, saved_state: Optional[SavedState]):
     action = PlayerAction(-1)
@@ -64,5 +75,12 @@ def human_vs_agent(
                     playing = False
                     break
 
+
+cProfile.run('human_vs_agent(generate_move_min_ab, generate_move_min_ab)', 'minimax_abeta')
+
+
 if __name__ == "__main__":
-    human_vs_agent(user_move)
+    human_vs_agent(generate_move_min_ab)
+
+p = pstats.Stats('minimax_abeta')
+p.sort_stats('tottime').print_stats(50)

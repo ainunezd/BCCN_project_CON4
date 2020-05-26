@@ -1,0 +1,1 @@
+from .minimax_abeta_code import generate_move_minimax_alphabeta as generate_move_min_ab

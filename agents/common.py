@@ -5,6 +5,8 @@ from enum import Enum
 
 from typing import Optional
 
+weights_array = np.array([4, 2, 5, 1000, -2, -100])
+
 BoardPiece = np.int8  # The data type (dtype) of the board
 NO_PLAYER = BoardPiece(0)  # board[i, j] == NO_PLAYER where the position is empty
 PLAYER1 = BoardPiece(1)  # board[i, j] == PLAYER1 where player 1 has a piece
@@ -68,19 +70,34 @@ def pretty_print_board(board: np.ndarray) -> str:
     |==============|
     |0 1 2 3 4 5 6 |
     """
+    rows_board = board.shape[0]
+    cols_board = board.shape[1]
+    pp_board = np.zeros((rows_board + 3, cols_board * 2 + 3))
 
-    a = board.astype(int)
-    a = board.astype(str)
+    board = board.astype(int)
+    board = board.astype(str)
+    pp_board = pp_board.astype(int)
+    pp_board = pp_board.astype(str)
 
-    pp_board = np.array([['/', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '/', '\n'],
-                         ['/', num_to_char(a[5, 0]), ' ', num_to_char(a[5, 1]), ' ', num_to_char(a[5, 2]), ' ',num_to_char(a[5, 3]), ' ', num_to_char(a[5, 4]), ' ', num_to_char(a[5, 5]), ' ',num_to_char(a[5, 6]), ' ', '/', '\n'],
-                         ['/', num_to_char(a[4, 0]), ' ', num_to_char(a[4, 1]), ' ', num_to_char(a[4, 2]), ' ',num_to_char(a[4, 3]), ' ', num_to_char(a[4, 4]), ' ', num_to_char(a[4, 5]), ' ',num_to_char(a[4, 6]), ' ', '/', '\n'],
-                         ['/', num_to_char(a[3, 0]), ' ', num_to_char(a[3, 1]), ' ', num_to_char(a[3, 2]), ' ',num_to_char(a[3, 3]), ' ', num_to_char(a[3, 4]), ' ', num_to_char(a[3, 5]), ' ',num_to_char(a[3, 6]), ' ', '/', '\n'],
-                         ['/', num_to_char(a[2, 0]), ' ', num_to_char(a[2, 1]), ' ', num_to_char(a[2, 2]), ' ',num_to_char(a[2, 3]), ' ', num_to_char(a[2, 4]), ' ', num_to_char(a[2, 5]), ' ',num_to_char(a[2, 6]), ' ', '/', '\n'],
-                         ['/', num_to_char(a[1, 0]), ' ', num_to_char(a[1, 1]), ' ', num_to_char(a[1, 2]), ' ',num_to_char(a[1, 3]), ' ', num_to_char(a[1, 4]), ' ', num_to_char(a[1, 5]), ' ',num_to_char(a[1, 6]), ' ', '/', '\n'],
-                         ['/', num_to_char(a[0, 0]), ' ', num_to_char(a[0, 1]), ' ', num_to_char(a[0, 2]), ' ',num_to_char(a[0, 3]), ' ', num_to_char(a[0, 4]), ' ', num_to_char(a[0, 5]), ' ',num_to_char(a[0, 6]), ' ', '/', '\n'],
-                         ['/', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '/', '\n'],
-                         ['/', '0', ' ', '1', ' ', '2', ' ', '3', ' ', '4', ' ', '5', ' ', '6', ' ', '/', '\n']])
+    pp_board[:, 0] = '/'
+    pp_board[:, -1] = '\n'
+    pp_board[:, -2] = '/'
+    pp_board[0, 1:-2] = '='
+    pp_board[-2, 1:-2] = '='
+
+    i=0
+
+    for r in np.arange(1, pp_board.shape[0], 1):
+        for c in np.arange(1, pp_board.shape[1]-2, 1):
+            if c%2 ==0:
+                pp_board[r,c] = ' '
+            else:
+                if r== (pp_board.shape[0]-1):
+                    pp_board[r,c] = str(i)
+                    i+=1
+                elif r>=1 and r<=rows_board:
+                    pp_board[r,c] = num_to_char(board[abs(r-rows_board), (c-1)//2])
+
     pp_board = pp_board.flatten()
     pp_board = ''.join(pp_board)
 
@@ -112,15 +129,20 @@ def string_to_board(pp_board: str) -> np.ndarray:
     board state as a string.
     """
 
-    pp = np.array(list(pp_board)).reshape(9,17)
-    board_ = np.array([[char_to_num(pp[6, 1]), char_to_num(pp[6, 3]), char_to_num(pp[6, 5]), char_to_num(pp[6, 7]), char_to_num(pp[6, 9]), char_to_num(pp[6, 11]), char_to_num(pp[6, 13])],
-                      [char_to_num(pp[5, 1]), char_to_num(pp[5, 3]), char_to_num(pp[5, 5]), char_to_num(pp[5, 7]), char_to_num(pp[5, 9]), char_to_num(pp[5, 11]), char_to_num(pp[5, 13])],
-                      [char_to_num(pp[4, 1]), char_to_num(pp[4, 3]), char_to_num(pp[4, 5]), char_to_num(pp[4, 7]), char_to_num(pp[4, 9]), char_to_num(pp[4, 11]), char_to_num(pp[4, 13])],
-                      [char_to_num(pp[3, 1]), char_to_num(pp[3, 3]), char_to_num(pp[3, 5]), char_to_num(pp[3, 7]), char_to_num(pp[3, 9]), char_to_num(pp[3, 11]), char_to_num(pp[3, 13])],
-                      [char_to_num(pp[2, 1]), char_to_num(pp[2, 3]), char_to_num(pp[2, 5]), char_to_num(pp[2, 7]), char_to_num(pp[2, 9]), char_to_num(pp[2, 11]), char_to_num(pp[2, 13])],
-                      [char_to_num(pp[1, 1]), char_to_num(pp[1, 3]), char_to_num(pp[1, 5]), char_to_num(pp[1, 7]), char_to_num(pp[1, 9]), char_to_num(pp[1, 11]), char_to_num(pp[1, 13])]])
-    return board_
+    pp_rows = len(pp_board.splitlines())
+    pp_cols = len(pp_board) // pp_rows
 
+    board_rows = pp_rows-3
+    board_cols = (pp_cols-3)//2
+
+    pp = np.array(list(pp_board)).reshape(pp_rows,pp_cols)
+    board_ = np.zeros((board_rows, board_cols), dtype = BoardPiece)
+
+    for r in range(board_rows):
+        for c in range(board_cols):
+            board_[r,c] = char_to_num(pp[abs(r - board_rows), c*2 +1])
+
+    return board_
 
 def apply_player_action(board: np.ndarray, action: PlayerAction, player: BoardPiece, copy: bool = False) -> np.ndarray:
     """
@@ -128,29 +150,28 @@ def apply_player_action(board: np.ndarray, action: PlayerAction, player: BoardPi
     board is returned. If copy is True, makes a copy of the board before modifying it.
     """
 
-    num_rows = 6
+    num_rows = board.shape[0]
     row = np.int8
 
     if copy:
-        old_board = board.copy()
-        return old_board
+        new_board = board.copy()
     else:
-        pass
+        new_board = board
 
     column = int(action)
 
-    if int(board[5, column]) == 0:
+    if int(new_board[num_rows-1, column]) == 0:
         for r in np.arange(num_rows-1, -1, -1):
-            if board[r, column] == 0:
+            if new_board[r, column] == 0:
                 row = int(r)
 
             else:
                 pass
-        board[row, column] = player
+        new_board[row, column] = player
     else:
         pass
 
-    new_board = board
+
     return new_board
 
 
@@ -162,8 +183,8 @@ def connected_four(board: np.ndarray, player: BoardPiece, last_action: Optional[
     for potential speed optimisation.
     """
 
-    columns = int(len(board[1]))
-    rows = int(len(board))
+    columns = board.shape[1]
+    rows = board.shape[0]
 
     win = False
 
@@ -175,10 +196,11 @@ def connected_four(board: np.ndarray, player: BoardPiece, last_action: Optional[
                 win = True
 
     # check vertical
-    for r in range(rows - 3):
-        if board[r, last_action] == player and board[r + 1, last_action] == player and board[
-            r + 2, last_action] == player and board[r + 3, last_action] == player:
-            win = True
+    for c in range(columns):
+        for r in range(rows - 3):
+            if board[r, c] == player and board[r + 1, c] == player and board[
+                r + 2, c] == player and board[r + 3, c] == player:
+                win = True
 
     # Check diagonal positive slope
     for c in range(columns - 3):
@@ -222,3 +244,63 @@ GenMove = Callable[
     [np.ndarray, BoardPiece, Optional[SavedState]],  # Arguments for the generate_move function
     Tuple[PlayerAction, Optional[SavedState]]  # Return type of the generate_move function
 ]
+
+
+
+
+def eval_window(window: list, weights: np.ndarray)-> int:
+    '''Returns the score for a window of 4 positions in the board'''
+    score = 0
+
+    if window.count(PLAYER1) == 4:
+        score += weights[3]
+    elif window.count(PLAYER1) == 3 and window.count(NO_PLAYER) == 1:
+        score += weights[2]
+    elif window.count(PLAYER1) == 2 and window.count(NO_PLAYER) == 2:
+        score += weights[1]
+    elif window.count(PLAYER2) == 2 and window.count(NO_PLAYER) == 2:
+        score += weights[4]
+    elif window.count(PLAYER2) == 3 and window.count(NO_PLAYER) == 1:
+        score += weights[5]
+
+    return int(score)
+
+def scoring_function ( board:np.ndarray, weights:np.ndarray):
+    '''Return the score of the full board'''
+
+    columns = board.shape[1]
+    rows = board.shape[0]
+    total_score =0
+
+    #Score horizontal
+    score_horizontal = 0
+    for r  in range(rows):
+        for c in range(columns - 3):
+            patch = list(board[r, c:c+4])
+            score_horizontal += eval_window(window = patch, weights = weights )
+
+    #Score vertical
+    score_vertical = 0
+    for c in range(columns):
+        for r in range(rows-3):
+            patch = list(board[r : r+4, c])
+            score_vertical += eval_window(window = patch, weights = weights)
+
+      #Score diagonal positive
+    score_diag_pos = 0
+    for c in range(columns - 3):
+        for r in range(rows - 3):
+            patch = [board[r,c], board[r+1,c+1], board[r+2,c+2], board[r+3,c+3]]
+            score_diag_pos += eval_window(window = patch, weights = weights)
+
+    #Score diagonal negative
+    score_diag_neg = 0
+    for c in range(columns - 3):
+        for r in range(3, rows):
+            patch = [board[r,c], board[r-1,c+1], board[r-2,c+2], board[r-3,c+3]]
+            score_diag_neg += eval_window(window = patch, weights = weights)
+
+    total_score = score_horizontal + score_vertical + score_diag_neg +score_diag_pos
+    return int(total_score)
+
+
