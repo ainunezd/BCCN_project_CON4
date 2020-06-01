@@ -154,25 +154,14 @@ def apply_player_action(board: np.ndarray, action: PlayerAction, player: BoardPi
     row = np.int8
 
     if copy:
-        new_board = board.copy()
-    else:
-        new_board = board
+        board = board.copy()
 
     column = int(action)
 
-    if int(new_board[num_rows-1, column]) == 0:
-        for r in np.arange(num_rows-1, -1, -1):
-            if new_board[r, column] == 0:
-                row = int(r)
+    free = np.argwhere(board[:,column] == NO_PLAYER)
+    board[int(free[0]), column] = player
 
-            else:
-                pass
-        new_board[row, column] = player
-    else:
-        pass
-
-
-    return new_board
+    return board
 
 
 def connected_four(board: np.ndarray, player: BoardPiece, last_action: Optional[PlayerAction] = None, ) -> bool:
@@ -248,24 +237,28 @@ GenMove = Callable[
 
 
 
-def eval_window(window: list, weights: np.ndarray)-> int:
+def eval_window(window: list, weights: np.ndarray, player:BoardPiece)-> int:
     '''Returns the score for a window of 4 positions in the board'''
     score = 0
+    if player == PLAYER1:
+        opponent = PLAYER2
+    else:
+        opponent = PLAYER1
 
-    if window.count(PLAYER1) == 4:
+    if window.count(player) == 4:
         score += weights[3]
-    elif window.count(PLAYER1) == 3 and window.count(NO_PLAYER) == 1:
+    elif window.count(player) == 3 and window.count(NO_PLAYER) == 1:
         score += weights[2]
-    elif window.count(PLAYER1) == 2 and window.count(NO_PLAYER) == 2:
+    elif window.count(player) == 2 and window.count(NO_PLAYER) == 2:
         score += weights[1]
-    elif window.count(PLAYER2) == 2 and window.count(NO_PLAYER) == 2:
+    elif window.count(opponent) == 2 and window.count(NO_PLAYER) == 2:
         score += weights[4]
-    elif window.count(PLAYER2) == 3 and window.count(NO_PLAYER) == 1:
+    elif window.count(opponent) == 3 and window.count(NO_PLAYER) == 1:
         score += weights[5]
 
     return int(score)
 
-def scoring_function ( board:np.ndarray, weights:np.ndarray):
+def scoring_function ( board:np.ndarray, weights:np.ndarray, player:BoardPiece):
     '''Return the score of the full board'''
 
     columns = board.shape[1]
@@ -277,30 +270,30 @@ def scoring_function ( board:np.ndarray, weights:np.ndarray):
     for r  in range(rows):
         for c in range(columns - 3):
             patch = list(board[r, c:c+4])
-            score_horizontal += eval_window(window = patch, weights = weights )
+            score_horizontal += eval_window(window = patch, weights = weights, player=player)
 
     #Score vertical
     score_vertical = 0
     for c in range(columns):
         for r in range(rows-3):
             patch = list(board[r : r+4, c])
-            score_vertical += eval_window(window = patch, weights = weights)
+            score_vertical += eval_window(window = patch, weights = weights, player=player)
 
       #Score diagonal positive
     score_diag_pos = 0
     for c in range(columns - 3):
         for r in range(rows - 3):
             patch = [board[r,c], board[r+1,c+1], board[r+2,c+2], board[r+3,c+3]]
-            score_diag_pos += eval_window(window = patch, weights = weights)
+            score_diag_pos += eval_window(window = patch, weights = weights, player=player)
 
     #Score diagonal negative
     score_diag_neg = 0
     for c in range(columns - 3):
         for r in range(3, rows):
             patch = [board[r,c], board[r-1,c+1], board[r-2,c+2], board[r-3,c+3]]
-            score_diag_neg += eval_window(window = patch, weights = weights)
+            score_diag_neg += eval_window(window = patch, weights = weights, player=player)
 
-    total_score = score_horizontal + score_vertical + score_diag_neg +score_diag_pos
+    total_score = score_horizontal + score_vertical + score_diag_neg + score_diag_pos
     return int(total_score)
 
 

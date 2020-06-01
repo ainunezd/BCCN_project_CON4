@@ -5,10 +5,10 @@ from agents.agent_random import generate_move_ran
 from agents.agent_score import generate_move_sc
 from agents.agent_minimax_aa import generate_move_min
 from agents.agent_minimax_abeta import generate_move_min_ab
-import pstats
-import os
-os.environ['NUMBA_DISABLE_JIT'] = '1'
-import cProfile
+#import pstats
+#import os
+#os.environ['NUMBA_DISABLE_JIT'] = '1'
+#import cProfile
 
 
 
@@ -76,11 +76,11 @@ def human_vs_agent(
                     break
 
 
-cProfile.run('human_vs_agent(generate_move_min_ab, generate_move_min_ab)', 'minimax_abeta')
+#cProfile.run('human_vs_agent(generate_move_min_ab, generate_move_min_ab)', 'minimax_abeta')
 
 
 if __name__ == "__main__":
     human_vs_agent(generate_move_min_ab)
 
-p = pstats.Stats('minimax_abeta')
-p.sort_stats('tottime').print_stats(50)
+#p = pstats.Stats('minimax_abeta')
+#p.sort_stats('tottime').print_stats(50)
