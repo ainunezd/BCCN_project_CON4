@@ -80,7 +80,7 @@ def human_vs_agent(
 
 
 if __name__ == "__main__":
-    human_vs_agent(generate_move_min_ab)
+    human_vs_agent(generate_move_min)
 
 #p = pstats.Stats('minimax_abeta')
 #p.sort_stats('tottime').print_stats(50)

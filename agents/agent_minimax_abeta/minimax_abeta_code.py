@@ -9,6 +9,8 @@ num_depth = 4
 
 
 def minimax_ab(board: np.ndarray, depth: int, maximizingPlayer: bool, player:BoardPiece, weights: np.ndarray = weights_array):
+    '''Minimax function with alpha-beta prunning optimization
+    to obtain the agent best move'''
     board_terminal = connected_four(board, player=PLAYER1) or connected_four(board, player=PLAYER2)
 
     columns = np.argwhere(board[-1,:] == NO_PLAYER)
