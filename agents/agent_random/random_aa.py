@@ -9,11 +9,7 @@ def generate_move_random(
 ) -> Tuple[PlayerAction, Optional[SavedState]]:
         #Tuple[PlayerAction, Optional[SavedState]]:
 
-    if player == PLAYER1:
-        action = randint(0,board.shape[1]-1)
-    else:
-        pass
-
+    action = randint(0,board.shape[1]-1)
 
 
     return np.int8(action), saved_state

@@ -5,10 +5,11 @@ from agents.agent_random import generate_move_ran
 from agents.agent_score import generate_move_sc
 from agents.agent_minimax_aa import generate_move_min
 from agents.agent_minimax_abeta import generate_move_min_ab
-#import pstats
-#import os
-#os.environ['NUMBA_DISABLE_JIT'] = '1'
-#import cProfile
+from agents.agent_montecarlo import generate_move_mc
+import pstats
+import os
+os.environ['NUMBA_DISABLE_JIT'] = '1'
+import cProfile
 
 
 
@@ -80,7 +81,7 @@ def human_vs_agent(
 
 
 if __name__ == "__main__":
-    human_vs_agent(generate_move_min)
+    human_vs_agent(generate_move_mc, generate_move_min_ab, 'Montecarlo', 'Minimax')
 
 #p = pstats.Stats('minimax_abeta')
 #p.sort_stats('tottime').print_stats(50)
