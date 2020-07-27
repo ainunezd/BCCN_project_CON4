@@ -3,10 +3,11 @@ import pytest
 
 from agents.common import PLAYER1, PLAYER2
 
+
 def test_generate_move_scored():
-    '''
+    """
     Test for the first movement of the scored agent
-    '''
+    """
     from agents.agent_score.score_aa import generate_move_scored
     from agents.common import initialize_game_state
     ret = initialize_game_state()
